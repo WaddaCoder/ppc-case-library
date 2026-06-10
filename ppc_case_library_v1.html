@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0f1923">
+<title>PPC Case Library</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:'DM Sans',sans-serif;background:#0f1923;color:#d0dce8;display:flex;flex-direction:column;max-width:480px;margin:0 auto;height:100dvh}
+:root{
+  --navy:#0f1923;
+  --surface:#1a2535;
+  --surface2:#0c151e;
+  --border:#2a3a4a;
+  --border2:#1e2e3e;
+  --gold:#c9a84c;
+  --gold-lt:#e8c878;
+  --text:#d0dce8;
+  --text-dim:#b0c8e0;
+  --blue:#7ab8f0;
+  --blue-bg:#1a2a4a;
+  --blue-bd:#1e3a5a;
+  --green:#5dd4a0;
+  --green-bg:#0f2a1f;
+  --green-bd:#1a4a35;
+  --cat-bg:#2a1e08;
+  --cat-bd:#3a2a0a;
+  --r:10px;
+  --r-sm:6px;
+}
+
+/* ── App shell ── */
+#app{display:flex;flex-direction:column;height:100dvh;overflow:hidden}
+
+/* ── Header ── */
+#hdr{background:var(--navy);padding:14px 16px 0;border-bottom:0.5px solid var(--border2);flex-shrink:0}
+.eyebrow{font-size:10px;letter-spacing:.14em;color:var(--gold);font-weight:700;text-transform:uppercase;margin-bottom:2px}
+.title-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.title{font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:700;color:#e8e8e8;letter-spacing:-.01em}
+.title span{color:var(--gold)}
+.case-count{font-size:11px;color:var(--text);background:var(--surface);border:0.5px solid var(--border);border-radius:20px;padding:3px 10px}
+
+/* ── Search ── */
+.search-wrap{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);padding:9px 12px;display:flex;align-items:center;gap:8px;margin-bottom:12px;cursor:text}
+.search-wrap input{background:none;border:none;outline:none;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;flex:1;min-width:0}
+.search-wrap input::placeholder{color:#6a8090}
+.si{font-size:15px;color:#6a8090;flex-shrink:0}
+.clr-btn{background:none;border:none;color:#6a8090;font-size:14px;cursor:pointer;padding:0;display:none;line-height:1}
+.clr-btn.vis{display:block}
+
+/* ── Filter rows ── */
+.filter-block{padding:0 0 0;background:var(--navy)}
+.filter-lbl{font-size:9px;letter-spacing:.1em;color:var(--gold);text-transform:uppercase;padding:8px 16px 4px;font-weight:700}
+.pill-row{padding:0 12px 10px;display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.pill-row::-webkit-scrollbar{display:none}
+.pill{padding:5px 11px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap;border:0.5px solid var(--border);color:var(--text);background:transparent;cursor:pointer;display:flex;align-items:center;gap:5px;user-select:none;transition:background .12s,border-color .12s,color .12s}
+.pill:active{opacity:.75}
+.pill.on{background:var(--gold);color:var(--navy);border-color:var(--gold);font-weight:700}
+.pill-ico{font-size:12px}
+.sec-row{padding:0 12px 10px;display:flex;gap:5px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.sec-row::-webkit-scrollbar{display:none}
+.spill{padding:4px 9px;border-radius:var(--r-sm);font-size:10px;font-weight:700;white-space:nowrap;background:var(--surface);color:var(--blue);border:0.5px solid var(--blue-bd);letter-spacing:.02em;cursor:pointer;user-select:none;transition:background .12s,border-color .12s}
+.spill:active{opacity:.75}
+.spill.on{background:var(--blue-bg);border-color:var(--blue)}
+.spill.crpc{color:var(--green);background:var(--green-bg);border-color:var(--green-bd)}
+.spill.crpc.on{background:#0a3a28;border-color:var(--green)}
+
+/* ── Results bar ── */
+.results-bar{padding:7px 16px 5px;display:flex;justify-content:space-between;align-items:center;background:var(--navy);border-bottom:0.5px solid var(--border2);flex-shrink:0}
+.results-txt{font-size:11px;color:var(--text)}
+.sort-btn{font-size:11px;color:var(--blue);display:flex;align-items:center;gap:4px;cursor:pointer;background:none;border:none;padding:0;font-family:'DM Sans',sans-serif}
+
+/* ── Cards scroll area ── */
+#cards-wrap{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--surface2);padding:6px 10px 24px}
+#cards-wrap::-webkit-scrollbar{width:3px}
+#cards-wrap::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+
+/* ── Divider ── */
+.div-lbl{padding:10px 6px 4px;font-size:9px;letter-spacing:.1em;color:var(--gold);text-transform:uppercase;font-weight:700}
+
+/* ── Case card ── */
+.ccard{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:6px;transition:border-color .15s}
+.ccard.open{border-color:#c9a84c55}
+.cc-hdr{padding:11px 13px;display:flex;align-items:flex-start;gap:10px;cursor:pointer;user-select:none}
+.cc-hdr:active{opacity:.85}
+.cc-ico{width:36px;height:36px;background:var(--navy);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;border:0.5px solid var(--border)}
+.cc-meta{flex:1;min-width:0}
+.cc-name{font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;color:var(--gold);margin-bottom:2px;line-height:1.3}
+.cc-cite{font-size:10px;color:var(--text)}
+.cc-chev{color:var(--text-dim);font-size:13px;margin-top:3px;flex-shrink:0;transition:transform .2s}
+.ccard.open .cc-chev{color:var(--gold);transform:rotate(180deg)}
+.cc-tags{padding:0 13px 10px;display:flex;gap:5px;flex-wrap:wrap}
+.tag{padding:3px 8px;border-radius:5px;font-size:10px;font-weight:700;letter-spacing:.02em}
+.tp{background:var(--blue-bg);color:var(--blue);border:0.5px solid var(--blue-bd)}
+.tc{background:var(--green-bg);color:var(--green);border:0.5px solid var(--green-bd)}
+.tt{background:var(--cat-bg);color:var(--gold-lt);border:0.5px solid var(--cat-bd)}
+.cc-hint{padding:0 13px 10px;font-size:11px;color:var(--text-dim);font-style:italic}
+
+/* ── Expanded body ── */
+.cc-body{border-top:0.5px solid var(--border2);padding:11px 13px 13px;display:none}
+.ccard.open .cc-body{display:block}
+.cc-text{font-size:12px;color:var(--text);line-height:1.65;margin-bottom:10px}
+.rel-lbl{font-size:9px;font-weight:700;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px}
+.rel-item{font-size:11px;color:var(--text-dim);padding:2px 0;line-height:1.4}
+.spar-box{margin-top:10px;background:var(--navy);border:0.5px solid #c9a84c44;border-left:2.5px solid var(--gold);border-radius:var(--r-sm);padding:9px 11px}
+.spar-lbl{font-size:9px;font-weight:700;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+.spar-txt{font-size:11px;color:var(--text);line-height:1.55}
+
+/* ── Empty state ── */
+#empty{display:none;flex-direction:column;align-items:center;justify-content:center;padding:48px 24px;text-align:center}
+#empty.vis{display:flex}
+#empty .e-ico{font-size:36px;margin-bottom:12px}
+#empty .e-txt{font-size:14px;color:var(--text-dim)}
+#empty .e-sub{font-size:12px;color:#6a8090;margin-top:4px}
+</style>
+</head>
+<body>
+<div id="app">
+
+<div id="hdr">
+  <div class="eyebrow">PPC Navigator</div>
+  <div class="title-row">
+    <div class="title">Case <span>Library</span></div>
+    <div class="case-count" id="total-count">31 cases</div>
+  </div>
+  <div class="search-wrap" onclick="document.getElementById('si').focus()">
+    <span class="si">🔍</span>
+    <input id="si" type="search" placeholder="Search cases, citations, keywords…" oninput="onSearch(this.value)" autocomplete="off" autocorrect="off" spellcheck="false">
+    <button class="clr-btn" id="clr" onclick="clearSearch()">✕</button>
+  </div>
+  <div class="filter-block">
+    <div class="filter-lbl">Filter by topic</div>
+    <div class="pill-row" id="topic-pills"></div>
+    <div class="filter-lbl">Filter by section</div>
+    <div class="sec-row" id="sec-pills"></div>
+  </div>
+</div>
+
+<div class="results-bar">
+  <span class="results-txt" id="results-txt">Showing 31 cases</span>
+  <button class="sort-btn" id="sort-btn" onclick="toggleSort()">↕ Sort: Year</button>
+</div>
+
+<div id="cards-wrap">
+  <div id="cards-inner"></div>
+  <div id="empty">
+    <div class="e-ico">⚖️</div>
+    <div class="e-txt">No cases found</div>
+    <div class="e-sub">Try a different search or filter</div>
+  </div>
+</div>
+
+</div>
+
+<script>
+// ── THE EVERGREEN PRINCIPLE ───────────────────────────────────────────────
+// All content lives here. Adding a case = adding one object to CASES.
+// Adding a topic = add to a case's topics array — pill appears automatically.
+// Adding a section = add to a case's sections array — tag appears automatically.
+// Never hardcode content in HTML.
+// ─────────────────────────────────────────────────────────────────────────
+
+var CASES = [
+
+// ── COMMON INTENTION ─────────────────────────────────────────────────────
+{
+  id:'mahbub-shah',
+  name:'Mahbub Shah v. Emperor',
+  citation:'AIR 1945 PC 118 — Privy Council',
+  year:1945,
+  icon:'👥',
+  topics:['Common Intention'],
+  sections:['S.34'],
+  ppc_sections:['S.34','S.120-A'],
+  crpc_sections:[],
+  commentary:'Foundational Privy Council authority on S.34 PPC. Common intention requires a pre-arranged plan and acting in concert pursuant to that plan. Mere presence at the scene of a crime, even with knowledge that a crime is being committed, does not establish S.34 liability. The meeting of minds must precede the act — spontaneous participation in another\'s crime is not common intention.',
+  relevant:['Common Intention Element 1 — foundational authority on what S.34 requires','Element 3 (Furtherance) — no prior plan means no act can be in furtherance of it','S.34 vs S.120-A — pre-arranged plan language sits close to S.120-A\'s agreement requirement'],
+  sparring:'Three men are present when a fourth kills someone. Two knew what was planned. One arrived at the scene by chance. Apply Mahbub Shah — who is liable under S.34 and why does the chance arrival change the analysis entirely?'
+},
+{
+  id:'basharat-2023',
+  name:'Basharat v. The State',
+  citation:'2023 SCMR 975 — Supreme Court',
+  year:2023,
+  icon:'👥',
+  topics:['Common Intention'],
+  sections:['S.34'],
+  ppc_sections:['S.34','S.302'],
+  crpc_sections:[],
+  commentary:'Most recent Supreme Court authority on S.34. Refines the distinction between active and passive participation: where a person is present throughout a killing but their role is ambiguous, the court distinguishes between participation that advances the common intention and presence that does not constitute furtherance. Updates the Mahbub Shah 1945 and PLD 2001 SC 378 jurisprudence.',
+  relevant:['Common Intention Element 3 (Furtherance) — defines the lower boundary of furtherance','Abetment S.107 Aid element — passive presence falling short of S.34 may still constitute intentional aid'],
+  sparring:'A person stands at the door during a murder, does not enter, does not touch the victim, but does not leave. Apply Basharat 2023 — at what point does passive presence become active furtherance under S.34?'
+},
+{
+  id:'moazzam-2024',
+  name:'Moazzam Abbas v. The State',
+  citation:'2024 MLD 1055 — High Court',
+  year:2024,
+  icon:'👥',
+  topics:['Common Intention'],
+  sections:['S.34'],
+  ppc_sections:['S.34','S.302'],
+  crpc_sections:[],
+  commentary:'2024 High Court authority on the bedrock principle that mere presence at the scene of a crime is insufficient to establish S.34 liability. Presence raises an inference — it does not create an irrebuttable presumption of guilt. Moazzam Abbas sits at the absolute floor of the participation doctrine: Mahbub Shah establishes what is required; Basharat 2023 refines the active/passive line; Moazzam Abbas 2024 confirms the floor.',
+  relevant:['Common Intention Element 3 (Furtherance) — defines the absolute floor of participation','Murder S.302/34 — current word on proof standards for the most common charge combination'],
+  sparring:null
+},
+
+// ── MOB VIOLENCE ──────────────────────────────────────────────────────────
+{
+  id:'priyantha-2021',
+  name:'Priyantha Kumara Lynching',
+  citation:'ATC Sialkot 2021/2022 — 88 persons convicted',
+  year:2021,
+  icon:'👥',
+  topics:['Mob Violence','Common Intention'],
+  sections:['S.34','S.120-A'],
+  ppc_sections:['S.34','S.120-A','S.107','S.295-C'],
+  crpc_sections:[],
+  commentary:'Priyantha Kumara Diyawadana, a Sri Lankan factory manager in Sialkot, was accused by workers of desecrating Islamic scripture. A mob of hundreds attacked, tortured, killed, and burned him. An ATC convicted 88 persons — 6 sentenced to death, 9 to life. The scale made it the largest group conviction in a mob violence case in Pakistan\'s recent legal history. The case is the defining modern illustration of S.34 applied to mob violence: no single leader, no single fatal blow, yet every active participant was liable. WhatsApp communications before the incident established prior agreement under S.120-A.',
+  relevant:['Common Intention S.34 — defining modern case for S.34 in mob violence','Criminal Conspiracy S.120-A — prior communications established agreement','Abetment S.107 — instigation, gathering, and participation all operative simultaneously','Blasphemy S.295-C — allegation as trigger; no allegation justifies vigilante killing'],
+  sparring:'88 people convicted for one death. Apply Mahbub Shah, Basharat 2023, and Moazzam Abbas 2024 to distinguish the 6 sentenced to death from the peripheral participants. What was the decisive legal difference?'
+},
+{
+  id:'youhanabad-2015',
+  name:'Youhanabad Mob Lynching',
+  citation:'ATC Lahore 2015 — multiple proceedings',
+  year:2015,
+  icon:'👥',
+  topics:['Mob Violence','Common Intention'],
+  sections:['S.34','S.149'],
+  ppc_sections:['S.34','S.149','S.300'],
+  crpc_sections:[],
+  commentary:'On 15 March 2015, two suicide bombers attacked churches in Youhanabad during Sunday services. In the aftermath, a mob captured two Muslim men they believed were involved, tortured them, and burned them alive — both entirely innocent. Pakistan simultaneously dealt with two atrocities: a terrorist attack on a minority community, and a mob killing by members of that community. Courts faced S.300 Proviso 1 (grave and sudden provocation) as a live argument — did witnessing a bombing constitute legal provocation for mob members who responded with killing?',
+  relevant:['Common Intention S.34 — spontaneous crystallisation of common intention after a terrorist attack','S.149 Unlawful Assembly — the cleaner provision for peripheral members','Murder S.300 Proviso 1 — grave and sudden provocation: witnessing bombing as potential legal provocation','General Exceptions S.79 — good faith mistake of fact; both victims were innocent bystanders'],
+  sparring:'A mob witnesses a terrorist attack on their community and kills two men they believe were responsible. Both men were innocent. Apply S.34, S.149, S.300 Proviso 1, and S.79 simultaneously. Which defences succeed, which fail, and why does the innocence of the victims affect the analysis differently under each provision?'
+},
+
+// ── STATE VIOLENCE ────────────────────────────────────────────────────────
+{
+  id:'murtaza-bhutto-1996',
+  name:'Murtaza Bhutto Murder Case',
+  citation:'FIR 443/1996 — Sessions Court Karachi — all 18 acquitted',
+  year:1996,
+  icon:'⚖️',
+  topics:['State Violence','Elite Impunity'],
+  sections:['S.302','S.34'],
+  ppc_sections:['S.302','S.34','S.76','S.79'],
+  crpc_sections:['S.154 CrPC','S.161 CrPC','S.164 CrPC'],
+  commentary:'Mir Murtaza Bhutto — brother of Prime Minister Benazir Bhutto — was shot dead in an alleged police encounter near his Clifton residence in Karachi. 18 police officials were accused including a DIG, an SSP, and a former IB chief. The prosecution examined 73 of 223 listed witnesses. Case records went missing. All 18 were acquitted. The structural paradox: the killing occurred while Benazir Bhutto was Prime Minister — the state apparatus that allegedly killed her brother was under her own government\'s control. Eight men were killed on a public street, the killings were witnessed, and nobody was convicted of anything.',
+  relevant:['Murder S.302 read with S.34 — state actors charged under the same provisions as ordinary accused','General Exceptions S.76 — police acting under lawful authority as the encounter defence','Theories of Punishment — complete system failure; no punishment theory was served'],
+  sparring:'The encounter defence: police officers claim they fired in good faith under orders they believed lawful. Apply S.76. What must the prosecution prove to defeat S.76, and why did the prosecution fail on the facts of this case?',
+  crpc_note:'Primary home: CrPC Navigator — FIR registration, S.161 statements, investigation tampering, evidence going missing, role of the IO — every stage of the CrPC investigation framework was tested and found wanting.'
+},
+{
+  id:'model-town-2014',
+  name:'Model Town Massacre',
+  citation:'ATC Lahore 2014 — Justice Baqir Najfi Commission',
+  year:2014,
+  icon:'⚖️',
+  topics:['State Violence'],
+  sections:['S.302','S.34'],
+  ppc_sections:['S.302','S.34','S.76','S.99','S.107'],
+  crpc_sections:[],
+  commentary:'Punjab Police opened live fire on PAT workers outside their secretariat in Model Town, Lahore. 14 killed including two pregnant women, over 100 injured. Justice Baqir Najfi\'s commission held the Punjab government "directly responsible" and found zero footage of any PAT worker wielding a firearm. Gullu Butt — a civilian connected to the ruling party — smashed car windscreens and offered looted soft drinks to policemen during the operation. "Gulluocracy" entered the Oxford Dictionary. The Najfi Commission finding that orders were unlawful directly defeats the S.76 defence for officers claiming lawful authority.',
+  relevant:['Murder S.302 read with S.34 — coordinated operation constitutes pre-arranged plan','General Exceptions S.76 — Najfi Commission finding that orders were unlawful defeats the defence directly','General Exceptions S.99 — no right of private defence when police are themselves the threat','Abetment S.107(1) — political figures who directed the operation are abettors by instigation'],
+  sparring:'Officers claim S.76: they acted under orders they believed lawful. The Najfi Commission found those orders were unlawful. Does the judicial finding retroactively defeat the S.76 good faith belief, or is the test the officer\'s belief at the time of the act?'
+},
+
+// ── GENERAL EXCEPTIONS ────────────────────────────────────────────────────
+{
+  id:'mashal-khan-1988',
+  name:'Mashal Khan v. The State',
+  citation:'PLD 1988 SC 25 — Supreme Court',
+  year:1988,
+  icon:'⚡',
+  topics:['General Exceptions'],
+  sections:['S.96–106'],
+  ppc_sections:['S.96–106','S.99','S.300'],
+  crpc_sections:[],
+  commentary:'The Supreme Court\'s defining authority on proportionality in private defence — what Pakistani courts call the Golden Scales Rule. The force used must be weighed on golden scales against the force threatened. This is not a strict mathematical test: the Supreme Court recognises a person acting in genuine self-defence cannot measure their response with clinical exactitude in the heat of the moment. The test is reasonableness as circumstances appeared to the accused at the time — not in hindsight. This is the judicial content that gives S.99 PPC ("no more harm than necessary") its practical meaning.',
+  relevant:['General Exceptions Private Defence element — primary Supreme Court authority','Murder S.300 Proviso 2 — excess of private defence reducing murder to culpable homicide','The Golden Scales Rule is exam-ready named framework terminology — use verbatim'],
+  sparring:'A man is attacked with fists. He responds with a knife and kills the attacker. Apply Mashal Khan\'s Golden Scales Rule. Is this excess of private defence under S.99, or proportionate force under the circumstances as they appeared to him?'
+},
+
+// ── ABETMENT ─────────────────────────────────────────────────────────────
+{
+  id:'za-bhutto-1979-abet',
+  name:'ZA Bhutto v. State — Abetment Dimension',
+  citation:'PLD 1979 SC 53 — Supreme Court',
+  year:1979,
+  icon:'💬',
+  topics:['Abetment'],
+  sections:['S.107','S.109'],
+  ppc_sections:['S.107','S.109','S.302'],
+  crpc_sections:[],
+  commentary:'The most senior-level application of S.107/109 in Pakistani legal history. Prime Minister Zulfikar Ali Bhutto was convicted not as the person who pulled the trigger but as the person who instigated and directed the Federal Security Force operatives who assassinated Ahmad Raza Kasuri. The case rested on evidence that Bhutto had knowledge of, and gave directions for, the targeting. S.109 provides the abettor is punished with the same punishment as the principal where the act is committed in consequence of the abetment.',
+  relevant:['Abetment S.107(1) Instigation — applies instigation at the highest political level','Abetment S.109 — abettor liable for the same punishment as the principal'],
+  sparring:'Bhutto never touched a weapon. Apply S.107(1) instigation. What evidence is required to prove instigation at the level of a head of state directing security operatives, and why is this analytically different from a street-level instigator?'
+},
+{
+  id:'mumtaz-qadri-2016-abet',
+  name:'Mumtaz Qadri — Abetment by Religious Incitement',
+  citation:'PLD 2016 SC 17 — Supreme Court',
+  year:2016,
+  icon:'💬',
+  topics:['Abetment','Blasphemy'],
+  sections:['S.107','S.295-C'],
+  ppc_sections:['S.107','S.295-C','S.302'],
+  crpc_sections:[],
+  commentary:'Religious clerics who publicly praised the assassination of Governor Taseer, called it Islamically justified, and said Qadri had done what every true Muslim should do were investigated under S.107(1) abetment by instigation. The case drew a crucial line: where does protected religious speech end and criminal instigation begin? The test is whether the words were calculated to produce the commission of an offence in a specific context. General statements about religious duty are on one side; specific encouragement to kill a named individual is on the other.',
+  relevant:['Abetment S.107(1) Instigation — the public speech dimension of instigation','Instigation threshold — distinguishing protected expression from criminal encouragement'],
+  sparring:'A cleric gives a sermon stating that those who insult the Prophet deserve death and names a specific public figure currently facing blasphemy accusations. Is this protected religious expression or S.107(1) instigation? What is the decisive element?'
+},
+
+// ── BLASPHEMY ─────────────────────────────────────────────────────────────
+{
+  id:'mumtaz-qadri-2016',
+  name:'Mumtaz Qadri v. State — Vigilante Enforcement Rejection',
+  citation:'PLD 2016 SC 17 — Supreme Court',
+  year:2016,
+  icon:'📖',
+  topics:['Blasphemy'],
+  sections:['S.295-C'],
+  ppc_sections:['S.295-C','S.302','S.107'],
+  crpc_sections:[],
+  commentary:'Governor Salman Taseer had publicly called S.295-C a \'black law\' and advocated for Asia Bibi. His bodyguard Mumtaz Qadri shot him 28 times. The Supreme Court\'s rejection of Qadri\'s defence established conclusively that S.295-C enforcement is the state\'s exclusive domain. No private citizen, regardless of religious conviction, has standing to punish alleged blasphemy. The state holds the monopoly on criminal enforcement. Qadri was executed in 2016.',
+  relevant:['Blasphemy — establishes the state enforcement monopoly principle','Blasphemy — Asia Bibi and Mumtaz Qadri are inseparable: the same law that put Asia Bibi on death row motivated Taseer\'s murder and Qadri\'s execution'],
+  sparring:'Qadri argued he acted to defend the honour of the Prophet. Why does this argument fail legally under Pakistani criminal law, and what is the one principle the Supreme Court used to defeat it?'
+},
+{
+  id:'asia-bibi-2019',
+  name:'Asia Bibi v. State — The Weaponisation Doctrine',
+  citation:'PLD 2019 SC 64 — Supreme Court',
+  year:2019,
+  icon:'📖',
+  topics:['Blasphemy','Theories of Punishment'],
+  sections:['S.295-C'],
+  ppc_sections:['S.295-C'],
+  crpc_sections:[],
+  commentary:'Asia Bibi, a Christian farm labourer, was convicted under S.295-C after a dispute with Muslim co-workers and spent over a decade on death row. The Supreme Court acquitted her in 2018/2019. The judgment identified five red flags: prior dispute and enmity; allegation arising from a heated confrontation; sole testimony without corroboration; inconsistent reporting of the alleged words; community pressure context. Each required heightened scrutiny. The Supreme Court judicially recognised that S.295-C allegations are frequently fabricated as instruments of personal vendetta, property disputes, and minority persecution.',
+  relevant:['Blasphemy — establishes the weaponisation doctrine and five-red-flag framework','Theories of Punishment — deterrent theory perversely inverted: the severity of the punishment made false allegations a powerful weapon'],
+  sparring:'Apply the Asia Bibi five-red-flag framework to a hypothetical blasphemy case. A Muslim businessman accuses his Christian employee of blasphemy during a wage dispute. No witnesses. Identify which red flags apply and explain the standard of scrutiny each triggers.'
+},
+{
+  id:'rizwan-haider',
+  name:'Rizwan Haider Case — Mob Acquittal Pattern',
+  citation:'Sessions Court Punjab — unreported',
+  year:2020,
+  icon:'📖',
+  topics:['Blasphemy','Elite Impunity'],
+  sections:['S.295-C'],
+  ppc_sections:['S.295-C','S.302'],
+  crpc_sections:[],
+  commentary:'Illustrates the pattern of mob pressure causing acquittals in blasphemy prosecutions. Witnesses recant under threat, judges face intimidation, and the state fails to provide protection. Sits in the same pattern as Asia Bibi but from the prosecution side: where Asia Bibi shows how false allegations are made, this case shows how true charges fail under mob pressure on courts and witnesses.',
+  relevant:['Blasphemy — mob pressure on witnesses and judges as a recurring procedural failure','Asia Bibi weaponisation doctrine — same structural problem from the opposite direction'],
+  sparring:null
+},
+
+// ── MURDER ────────────────────────────────────────────────────────────────
+{
+  id:'za-bhutto-1979',
+  name:'ZA Bhutto v. State',
+  citation:'PLD 1979 SC 53 — Supreme Court',
+  year:1979,
+  icon:'⚖️',
+  topics:['Murder','Elite Impunity'],
+  sections:['S.302'],
+  ppc_sections:['S.302','S.107','S.109'],
+  crpc_sections:[],
+  commentary:'Prime Minister Zulfikar Ali Bhutto was convicted of the murder of Ahmad Raza Kasuri through the Federal Security Force. The Supreme Court upheld the death sentence, later carried out in April 1979. The most politically significant criminal conviction in Pakistani legal history. The controversy continues: Bhutto\'s supporters maintain the trial was politically motivated under a military government. The case sits at the intersection of criminal law, constitutional law, and political history.',
+  relevant:['Murder S.302 — conviction of a sitting Prime Minister','Abetment S.107/109 — Bhutto convicted as abettor not principal perpetrator','Theories of Punishment — retributive theory applied at the highest political level'],
+  sparring:'Was ZA Bhutto convicted of murder or of being an abettor of murder? Identify the precise charge and explain why the distinction matters for sentencing under S.109 PPC.'
+},
+{
+  id:'sher-khan',
+  name:'Sher Khan v. The State',
+  citation:'PLD 2002 SC 133 — Supreme Court',
+  year:2002,
+  icon:'⚖️',
+  topics:['Murder'],
+  sections:['S.302','S.300'],
+  ppc_sections:['S.299','S.300','S.302'],
+  crpc_sections:[],
+  commentary:'Supreme Court authority on the distinction between S.300 murder and S.299 culpable homicide not amounting to murder. The case examines the Provisos to S.300 — particularly the grave and sudden provocation proviso — and how courts determine whether the accused\'s act falls within murder or the lesser offence. Establishes the analytical method for applying the four clauses of S.300 to facts.',
+  relevant:['Murder S.300 — primary authority on the murder/culpable homicide distinction','S.300 Provisos — framework for applying provocation, private defence excess, and consent'],
+  sparring:'A man discovers his wife with another man and kills the other man immediately. Apply the four clauses of S.300 and the grave and sudden provocation proviso. Is this murder or culpable homicide, and what is the decisive element under Sher Khan?'
+},
+{
+  id:'shahzeb-khan-2012',
+  name:'Shahzeb Khan Murder — Diyat Override',
+  citation:'Supreme Court 2013/2018 — multiple proceedings',
+  year:2013,
+  icon:'⚖️',
+  topics:['Murder','Elite Impunity'],
+  sections:['S.302'],
+  ppc_sections:['S.302','S.309','S.310','S.311'],
+  crpc_sections:[],
+  commentary:'Shahzeb Khan, a young man from Karachi, was shot dead by Shahrukh Jatoi — scion of a feudal family — after a dispute at a party. Jatoi fled Pakistan. Upon return and conviction, the family accepted Diyat under enormous pressure. The Supreme Court suo motu took notice and held that accepting Diyat under duress does not constitute a valid waiver. Later proceedings saw sentences restored. The case became a landmark on the limits of Diyat as a mechanism for wealthy defendants to escape serious punishment.',
+  relevant:['Murder S.302 — Diyat cannot be a guaranteed escape route for the wealthy','Diyat S.309-310 — voluntary acceptance required; Diyat under duress is voidable','Theories of Punishment — deterrent and retributive theories versus restorative (Diyat) mechanism'],
+  sparring:'The heirs initially accepted Diyat. The Supreme Court intervened suo motu. Apply S.309 — what is the legal basis for the Supreme Court to override a private settlement between the perpetrator and the victim\'s family?'
+},
+{
+  id:'qandeel-baloch-2016',
+  name:'Qandeel Baloch — S.311 State Override',
+  citation:'State v. Muhammad Waseem — LHC/SC 2019/2022',
+  year:2019,
+  icon:'⚖️',
+  topics:['Murder'],
+  sections:['S.302','S.311'],
+  ppc_sections:['S.302','S.311','S.309','S.310'],
+  crpc_sections:[],
+  commentary:'Qandeel Baloch, a social media celebrity, was strangled by her brother Muhammad Waseem in an honour killing. The parents chose forgiveness and Diyat. S.311 overrode that choice and imposed Ta\'zir punishment. The 2016 legislature and 2022 Supreme Court confirmed: for honour killings, the state\'s retributive and deterrent interests outweigh the family\'s restorative preference. The Diyat mechanism — a classical Islamic restorative instrument — is partially disabled for this specific category of killing.',
+  relevant:['Murder S.311 — honour killing as a distinct sentencing regime','Diyat S.309-310 — the restorative mechanism that S.311 overrides','Theories of Punishment — direct judicial resolution of retributive/deterrent vs restorative tension'],
+  sparring:'The parents of the victim — Qandeel\'s own parents — chose forgiveness. S.311 overrode their choice. Is this a legitimate exercise of state power over private family decisions, or does it violate the restorative theory of Islamic criminal law? Argue both sides.'
+},
+{
+  id:'safia-bano-2021',
+  name:'Safia Bano v. Home Department',
+  citation:'PLD 2021 SC 488 — Supreme Court',
+  year:2021,
+  icon:'⚖️',
+  topics:['Murder','Theories of Punishment'],
+  sections:['S.302'],
+  ppc_sections:['S.84','S.302'],
+  crpc_sections:[],
+  commentary:'Supreme Court bar on executing mentally ill prisoners who cannot comprehend the rationale behind their punishment. A direct judicial application of reformative/humanitarian theory over retributive theory. Retributive theory says punishment is deserved for the wrong done — but executing someone who cannot understand why they are being executed serves no retributive purpose because the condemned cannot make the connection between their act and their punishment.',
+  relevant:['S.84 General Exceptions — unsoundness of mind as a complete defence','Theories of Punishment — reformative/humanitarian over retributive where comprehension is absent','Murder S.302 — limits on the state\'s power to execute in capital cases'],
+  sparring:'Apply the Safia Bano principle: if a condemned prisoner develops mental illness after conviction but before execution, must the state prove they currently understand the punishment — or is the original conviction sufficient? What theory of punishment does your answer depend on?'
+},
+
+// ── TERRORISM ─────────────────────────────────────────────────────────────
+{
+  id:'aps-2014',
+  name:'APS Peshawar Attack — Prosecution Arc',
+  citation:'ATC Peshawar 2014/2015 — military court proceedings',
+  year:2014,
+  icon:'⚖️',
+  topics:['Terrorism','Common Intention'],
+  sections:['S.302','S.120-A'],
+  ppc_sections:['S.302','S.120-A','S.34'],
+  crpc_sections:[],
+  commentary:'The Army Public School attack on 16 December 2014 — 132 children and 9 staff killed. The attack led directly to the 21st Constitutional Amendment creating military courts for terrorism trials, and the lifting of the moratorium on the death penalty in terrorism cases. The prosecution arc illustrates how S.120-A criminal conspiracy applies to a planned coordinated attack: the agreement preceded the act by weeks of preparation, multiple actors, divided roles. S.34 common intention applied to each attacker regardless of individual kill count.',
+  relevant:['Criminal Conspiracy S.120-A — planned coordinated attack as the clearest conspiracy fact pattern','Common Intention S.34 — each attacker liable for the total outcome regardless of individual acts','Murder S.302 — mass casualty application of the basic provisions'],
+  sparring:null
+},
+{
+  id:'data-darbar-2010',
+  name:'Data Darbar Bombing — Conspiracy Chain',
+  citation:'ATC Lahore 2010/2012 — multiple proceedings',
+  year:2010,
+  icon:'⚖️',
+  topics:['Terrorism','Abetment'],
+  sections:['S.120-A','S.107'],
+  ppc_sections:['S.120-A','S.107','S.302','S.34'],
+  crpc_sections:[],
+  commentary:'Two suicide bombers attacked the Data Darbar shrine in Lahore during Thursday devotional gathering, killing over 40 people. The conspiracy chain: recruiters who found the bombers, handlers who trained them, financiers who funded the operation, and the bombers themselves. S.120-A applied to the entire network as co-conspirators even though most never approached the shrine. S.107 abetment applied to the handlers and recruiters in Mode 1 (instigation) and Mode 3 (aid by training and logistics).',
+  relevant:['Criminal Conspiracy S.120-A — extended conspiracy chain, each link liable','Abetment S.107 — instigation and aid in the terrorism financing and recruitment context','Common Intention S.34 — all participants in the agreed plan share liability for the outcome'],
+  sparring:'A financier sends money to a network knowing it will fund a bombing, but has no knowledge of the specific target or timing. Apply S.120-A and S.107 — is he a co-conspirator, an abettor, or both, and what does the prosecution need to prove for each?'
+},
+
+// ── ELITE IMPUNITY ────────────────────────────────────────────────────────
+{
+  id:'raymond-davis-2011',
+  name:'Raymond Davis Case',
+  citation:'Sessions Court Lahore 2011 — released on Diyat',
+  year:2011,
+  icon:'⚖️',
+  topics:['Elite Impunity'],
+  sections:['S.302'],
+  ppc_sections:['S.302','S.100','S.309'],
+  crpc_sections:['S.154 CrPC'],
+  commentary:'American CIA contractor Raymond Davis shot and killed two Pakistani men in Lahore, claiming self-defence. A third was killed by a US Consulate rescue vehicle. The US claimed diplomatic immunity. Three weeks later admitted Davis was a CIA contractor. The case was resolved when families accepted Diyat reportedly of $2.3 million — with significant questions about voluntariness and political pressure. Flown out of Pakistan the same day. The unanswered legal question: does S.2 PPC\'s "every person within Pakistan" yield to diplomatic immunity, and does the Vienna Convention qualify as a "special law" under S.5 PPC?',
+  relevant:['PPC Jurisdiction S.1–5 — S.5 and special laws; Vienna Convention as potential special law displacing prosecution','Murder S.302 — three deaths, three different causation analyses','General Exceptions S.100 — self-defence claim; never judicially determined','Diyat S.309-310 — mechanism that resolved the case'],
+  sparring:'Does the Vienna Convention on Diplomatic Relations 1961, incorporated through the Diplomatic and Consular Privileges Act 1972, constitute a "special law" under S.5 PPC that displaces S.2\'s "every person within Pakistan"? Apply the Mixed Jurisdictional Model.'
+},
+
+// ── ACID ATTACKS ─────────────────────────────────────────────────────────
+{
+  id:'fakhra-younus-2000',
+  name:'Fakhra Younus',
+  citation:'Karachi 2000 — acquittal 2003; Acid Control Act 2011',
+  year:2000,
+  icon:'⚖️',
+  topics:['Acid Attacks','Elite Impunity'],
+  sections:['S.325'],
+  ppc_sections:['S.325','S.326','S.107'],
+  crpc_sections:[],
+  commentary:'Fakhra Younus was allegedly attacked with acid by her estranged husband Bilal Khar — son of former Punjab Governor Ghulam Mustafa Khar — while she slept. Severely disfigured and blinded. Khar used political and financial resources to pressure witnesses. Four eyewitnesses including her own family refused to identify him. Acquitted 2003. After 39 surgeries in Rome over twelve years, Fakhra died by suicide in March 2012, leaving a note blaming "the silence of law." One year before her death, the Acid Control and Acid Crime Prevention Act 2011 — which she had hoped would deliver justice — became law. It came too late for her.',
+  relevant:['S.325/326 PPC — grievous hurt; Acid Control Act 2011 now mandates 14-year minimum','Abetment S.107(3) — those who pressured witnesses committed abetment by intentional aid','Theories of Punishment — all four theories failed simultaneously in this case'],
+  sparring:'Fakhra\'s four eyewitnesses refused to identify Bilal Khar after alleged pressure. Apply S.107(3) abetment by intentional aid. Does pressuring a witness into silence constitute abetment of the resulting acquittal?'
+},
+
+// ── RAPE ──────────────────────────────────────────────────────────────────
+{
+  id:'safia-bibi-1985',
+  name:'Safia Bibi v. State',
+  citation:'1985 PLD FSC 120 — Federal Shariat Court',
+  year:1985,
+  icon:'⚖️',
+  topics:['Rape','Theories of Punishment'],
+  sections:['S.375'],
+  ppc_sections:['S.375','S.376'],
+  crpc_sections:[],
+  commentary:'A nearly blind young woman was raped by her employer and his son. She became pregnant — and that pregnancy was used as evidence against her. The FSC convicted Safia Bibi of Zina under the Hudood Ordinance 1979 while acquitting her alleged rapists. The Zina-bil-jabr provision required four male Muslim witnesses for conviction of the accused — an impossible standard. But the pregnancy was evidence of Zina against the woman. Sentenced to public lashes and imprisonment. The case became a national scandal and contributed directly to the Women\'s Protection Act 2006.',
+  relevant:['Rape S.375-376 — the case that most directly explains why the 2006 and 2021 reforms happened','Social-Legal Reform Arc — Safia Bibi 1985 → Women\'s Protection Act 2006 → S.375 consent reforms 2021','Theories of Punishment — deterrent theory inverted: the law deterred victims from reporting, not perpetrators from raping'],
+  sparring:'The Hudood Ordinance required four male Muslim witnesses to convict a rapist, but allowed the victim\'s pregnancy to be used as evidence of Zina against her. Identify the precise logical contradiction in this evidentiary framework and explain why it produced the result it did.'
+},
+{
+  id:'veena-hayat-1991',
+  name:'Veena Hayat — Political Weaponisation of Sexual Violence',
+  citation:'Karachi, November 1991 — no final conviction',
+  year:1991,
+  icon:'⚖️',
+  topics:['Rape','Elite Impunity'],
+  sections:['S.375'],
+  ppc_sections:['S.375','S.376','S.107'],
+  crpc_sections:['S.154 CrPC','S.156 CrPC'],
+  commentary:'Veena Hayat — close friend of Benazir Bhutto, daughter of Sardar Shaukat Hayat — was gang-raped inside her own home in Karachi, assaulted for 12 hours. She directly accused Irfanullah Khan Marwat — son-in-law of President Ghulam Ishaq Khan. Police registered the complaint only after the Army Chief intervened. The only case in the entire log where rape was allegedly deployed as direct political intimidation — targeting a prominent political figure\'s associate to send a message. Every other case involves gender-based violence as a social phenomenon; Veena Hayat takes S.375 into the intersection of criminal law and state power.',
+  relevant:['Rape S.375-376 — gang rape, political obstruction of investigation','Abetment S.107(1) Instigation — if orchestration is established, non-present accused is abettor by instigation','Theories of Punishment — deterrent theory complete failure; alleged orchestrator faced no consequences'],
+  sparring:null,
+  crpc_note:'CrPC anchor case: FIR registration duty, police investigation obligations, and constitutional petition route when normal process fails are all CrPC matters. Key case for Chapter XII CrPC when that module is built.'
+},
+{
+  id:'mukhtaran-mai-2005',
+  name:'Mukhtaran Mai v. State',
+  citation:'2005 SC / 2011 SC — multiple proceedings',
+  year:2005,
+  icon:'⚖️',
+  topics:['Rape','Theories of Punishment'],
+  sections:['S.375'],
+  ppc_sections:['S.375','S.376','S.120-A','S.107'],
+  crpc_sections:[],
+  commentary:'In Meerwala, Punjab, Mukhtaran Mai was gang-raped on the orders of a village panchayat as collective punishment for an alleged liaison involving her younger brother. An ATC convicted six accused. The LHC acquitted five. The Supreme Court in 2011 upheld most acquittals due to evidentiary insufficiency — despite an internationally documented fact pattern. Mukhtaran Mai used her compensation money to build a school in Meerwala: one of the most powerful real-world applications of restorative theory operating outside the formal legal framework when the formal system failed.',
+  relevant:['Rape S.375-376 — the defining gang rape case before S.375-A; legislative ancestor of S.375-A','Abetment/Conspiracy — panchayat ordering the rape is a textbook S.120-A conspiracy and S.107 instigation','Theories of Punishment — restorative theory (the school) succeeding where retributive theory (the acquittals) failed'],
+  sparring:'The panchayat ordered the rape but did not physically participate. Apply S.120-A and S.107(1) to the panchayat members. Identify which mode of abetment applies to which member and why the panchayat order satisfies the agreement requirement of S.120-A.'
+},
+{
+  id:'two-finger-2021',
+  name:'Two-Finger Test Abolition',
+  citation:'PLD 2021 SC 600 / Criminal Laws Amendment Act 2021',
+  year:2021,
+  icon:'⚖️',
+  topics:['Rape'],
+  sections:['S.375'],
+  ppc_sections:['S.375'],
+  crpc_sections:[],
+  commentary:'The Supreme Court in PLD 2021 SC 600 declared the two-finger test inadmissible on two grounds: scientific unreliability (prior sexual activity tells you nothing about consent on the occasion in question) and violation of the complainant\'s fundamental rights under Articles 9 and 14 of the Constitution. The Criminal Laws Amendment Act 2021 codified the ban. The 2021 consent definition — unambiguous voluntary agreement, silence is not consent — and the two-finger test abolition are conceptually linked: both reject the inference that a woman\'s sexual history or passive response is evidence of consent.',
+  relevant:['Rape Proof Standards element — directly abolishes a core evidentiary practice','Rape Consent sub-clause 7 — silence is not consent; conceptually linked reform','Theories of Punishment — the test deterred victims from reporting; its abolition corrects that inversion'],
+  sparring:'The two-finger test was abolished on two independent grounds: scientific unreliability and constitutional rights violation. Which ground is stronger, and does it matter which ground the court relied on if the result is the same?'
+},
+
+// ── CHILD PROTECTION ──────────────────────────────────────────────────────
+{
+  id:'kasur-2015',
+  name:'Kasur Child Abuse Scandal',
+  citation:'ATC Kasur 2015–2017 — multiple proceedings',
+  year:2015,
+  icon:'⚖️',
+  topics:['Child Protection','Common Intention'],
+  sections:['S.375','S.120-A'],
+  ppc_sections:['S.375','S.376','S.120-A','S.107'],
+  crpc_sections:[],
+  commentary:'A paedophile ring in Husain Khanwala village, Kasur systematically abused hundreds of children over years, filmed the abuse, and used the recordings for blackmail. Police ignored or threatened families into silence. The scandal broke in August 2015 when a mob attacked the police station. Convictions were secured for only a small number while the full network escaped accountability. The digital evidence dimension is significant: abuse filmed on mobile phones engages PECA 2016 for distribution of child abuse material, independent of the PPC charges.',
+  relevant:['Rape S.375-376 — mass child sexual abuse, multiple perpetrators','Criminal Conspiracy S.120-A — the organised network, filming, blackmail, and concealment constitute conspiracy','Abetment S.107 — filmers, distributors, and blackmailers engaged different modes of abetment','PECA 2016 — concurrent digital offences under S.5 PPC'],
+  sparring:'The network had separate roles: abusers, filmers, distributors, blackmailers. Apply S.120-A to the network as a whole and then identify which mode of S.107 abetment applies to each specific role.'
+},
+{
+  id:'zainab-2018',
+  name:'Zainab Ansari Murder — Imran Ali v. State',
+  citation:'ATC / LHC / SC 2018 — executed October 2018',
+  year:2018,
+  icon:'⚖️',
+  topics:['Child Protection','Murder'],
+  sections:['S.302','S.375'],
+  ppc_sections:['S.364-A','S.376','S.302'],
+  crpc_sections:[],
+  commentary:'Seven-year-old Zainab Ansari was kidnapped, raped, and murdered by her neighbour Imran Ali in Kasur. DNA evidence matched him to this crime and eight others in the same area over one year. Four death sentences under S.364-A (kidnapping a child under 14), S.376 (rape), S.302 (murder), and S.7 ATA 1997. The ATA conviction — serial child murder targeting a community creates fear in a section of the public — was a significant expansion of the terrorism definition. DNA evidence framework matching one perpetrator to eight victims was the most comprehensive forensic conviction in Pakistani criminal history at the time.',
+  relevant:['Rape S.375-376 — child victim, S.375(v), consent legally irrelevant','Murder S.302 — four death sentences on four counts','Stages of Crime — the twelve attacks show intention→preparation→attempt→completion repeated by a serial offender','Preventive theory — triggered the Zainab Alert Response and Recovery Act 2020'],
+  sparring:'Ali was convicted under both PPC and ATA provisions for the same acts. Explain how the same killing can simultaneously be murder under S.302 PPC and a terrorist act under S.7 ATA, and why this dual conviction was legally permissible.'
+},
+
+// ── THEFT ─────────────────────────────────────────────────────────────────
+{
+  id:'muhammad-riaz-1966',
+  name:'Muhammad Riaz v. The State',
+  citation:'PLD 1966 Lah. 379 — Lahore High Court',
+  year:1966,
+  icon:'⚖️',
+  topics:['Theft'],
+  sections:['S.378'],
+  ppc_sections:['S.378','S.24'],
+  crpc_sections:[],
+  commentary:'Lahore High Court authority on honest vs dishonest intention in property offences. If the accused genuinely believed they had a legal right to the property, the mental element of S.378 fails. The belief need not be legally correct — it need only be sincere. A person who takes what they believe is their own property from someone wrongfully holding it lacks the dishonest intention required for theft, even if they are legally wrong about their right.',
+  relevant:['Theft Element 1 (Dishonest Intention) — foundational authority on honest vs dishonest intention','Actus Reus and Mens Rea — identical physical acts may or may not constitute theft depending entirely on the mental element'],
+  sparring:'A farmer takes back his own bull from a neighbour\'s field, genuinely believing the neighbour stole it. The bull was actually the neighbour\'s. Apply Muhammad Riaz 1966 — is this theft? What is the decisive element and who bears the burden of proof on dishonest intention?'
+},
+{
+  id:'atta-ullah-1991',
+  name:'Atta Ullah Khan v. The State — Double Conviction Rule',
+  citation:'PLJ 1991 Cr.C. Lah. 353 — Lahore High Court',
+  year:1991,
+  icon:'⚖️',
+  topics:['Theft'],
+  sections:['S.378'],
+  ppc_sections:['S.378','S.382','S.411'],
+  crpc_sections:[],
+  commentary:'Lahore High Court authority on the double conviction rule in property offences. An accused cannot be convicted simultaneously under S.382 PPC (theft in a dwelling) and S.411 PPC (receiving stolen property) for the same goods. A person cannot steal property and simultaneously be in knowing possession of property stolen by another — the moment you are the thief, S.411 has no separate application. The prosecution must elect which charge to proceed on, or risk both convictions being set aside on appeal.',
+  relevant:['Theft S.378/S.382 — double conviction bar for same property','Actus Reus and Mens Rea — the same act cannot simultaneously satisfy two mutually exclusive mental state requirements'],
+  sparring:'A person is found in possession of goods stolen from a dwelling. The prosecution charges both S.382 (theft in dwelling) and S.411 (receiving stolen goods). Apply Atta Ullah Khan. Can both convictions stand and what is the logical reason they cannot?'
+},
+{
+  id:'stolen-property-2025',
+  name:'Recent Jurisprudence on Stolen Property Recovery',
+  citation:'2025 PCrLJ 517 — Sindh High Court',
+  year:2025,
+  icon:'⚖️',
+  topics:['Theft'],
+  sections:['S.378'],
+  ppc_sections:['S.378'],
+  crpc_sections:[],
+  commentary:'Sindh High Court 2025 — most recent case in the library. Authority on the evidentiary presumption arising from possession of recently stolen property. The central question: does recovery of stolen property from an accused short-circuit the element-by-element S.378 analysis, or must the prosecution still establish each element independently? Recovery raises a presumption but does not conclusively establish dishonest intention — the full conjunction must still be proven. One false element defeats the offence regardless of how strong other evidence is.',
+  relevant:['Theft all five elements — recovery evidence does not automatically establish all five','Theft Element 1 (Dishonest Intention) — presumption from recent possession vs direct proof of mens rea','Actus Reus and Mens Rea — mens rea cannot be presumed from actus reus evidence alone'],
+  sparring:'Police recover stolen jewellery from an accused\'s house two days after the theft. The accused says a stranger paid him to store a bag and he did not know the contents. Apply the 2025 PCrLJ standard — does the recovery establish dishonest intention or only raise a presumption? What must the accused do to rebut it?'
+},
+
+// ── ROBBERY ───────────────────────────────────────────────────────────────
+{
+  id:'muhammad-shafi-1959',
+  name:'Muhammad Shafi v. The State — Robbery Threshold',
+  citation:'PLD 1959 Kar. 648 — Karachi High Court',
+  year:1959,
+  icon:'⚔️',
+  topics:['Robbery'],
+  sections:['S.390'],
+  ppc_sections:['S.378','S.390'],
+  crpc_sections:[],
+  commentary:'The Karachi High Court\'s defining authority on the threshold question in Robbery: at what point does Theft escalate to Robbery through the application of force or fear? The force or fear must be causally connected to the taking — not merely incidental to it. A thief who panics and uses force in an unrelated altercation after a successful theft may not be guilty of robbery. The force must be applied in order to the taking, during the taking, or immediately after in order to retain what was taken or effect escape. The transaction is examined as a whole.',
+  relevant:['Robbery Element 2 (Force or Fear) — primary authority on contemporaneity requirement','Stages of Crime — engages the completion question: is robbery complete at taking or at escape?'],
+  sparring:'A pickpocket successfully takes a wallet. The victim notices and grabs the pickpocket\'s arm. The pickpocket punches the victim and runs. Apply Muhammad Shafi 1959 — was the force applied in order to retain the property taken? Is this theft or robbery?'
+},
+{
+  id:'ghulam-mohiuddin-2014',
+  name:'Ghulam Mohiuddin v. The State — Vicarious Liability in Dacoity',
+  citation:'2014 SCMR 1034 — Supreme Court',
+  year:2014,
+  icon:'⚔️',
+  topics:['Robbery','Common Intention'],
+  sections:['S.390','S.34'],
+  ppc_sections:['S.390','S.395','S.34','S.107'],
+  crpc_sections:[],
+  commentary:'Supreme Court authority on vicarious liability in Dacoity and armed robbery under S.392/395 read with S.34. If A, B, and C agree to rob but only A agreed to kill, are B and C liable for the death? The Supreme Court examines the outer boundary of the universal quantifier in S.34: what falls within the agreed purpose and what is a frolic of one member\'s own. Helps draw the line between abettor and common intentioner in group offences.',
+  relevant:['Robbery S.390/395 — vicarious liability in dacoity context','Common Intention S.34 — outer boundary of the universal quantifier in group robbery/violence','Abetment S.107 vs S.34 — line between abettor and common intentioner in group offences'],
+  sparring:'Three men agree to rob a house at night using threats only — no violence agreed. During the robbery, one produces a weapon and kills the occupant. Apply S.34 and Ghulam Mohiuddin — are the other two liable for murder? What is the test for whether the killing was within the scope of the agreed common intention?'
+},
+
+// ── THEORIES OF PUNISHMENT ────────────────────────────────────────────────
+{
+  id:'theories-summary',
+  name:'Theories of Punishment — Case Arc',
+  citation:'Across multiple cases — analytical framework',
+  year:1985,
+  icon:'⚙️',
+  topics:['Theories of Punishment'],
+  sections:['S.299','S.302'],
+  ppc_sections:['S.299','S.300','S.302','S.309','S.311'],
+  crpc_sections:[],
+  commentary:'The Pakistani case law demonstrates all four punishment theories in action and failure. Deterrent theory inverted (Safia Bibi 1985 — law deterred victims not perpetrators; Asia Bibi 2019 — severity of punishment weaponised for false allegations). Restorative theory outside the system (Mukhtaran Mai — school built when courts failed). Retributive vs restorative tension judicially resolved (Qandeel Baloch — S.311 overrides family\'s Diyat choice). Reformative over retributive (Safia Bano 2021 — bar on executing mentally ill prisoners who cannot comprehend their punishment). Complete system failure (Murtaza Bhutto 1996 — eight deaths, zero convictions, no theory served).',
+  relevant:['Deterrent theory — Safia Bibi and Asia Bibi show perverse deterrent effects','Restorative theory — Mukhtaran Mai shows restorative justice operating despite the formal system','Reformative theory — Safia Bano applies humanitarian limit on retributive theory','Complete failure — Murtaza Bhutto 1996 as the reference case for total system breakdown'],
+  sparring:'Rank the four theories of punishment — deterrent, retributive, reformative, and restorative — in order of how effectively Pakistani criminal law implements them, using one case for each to justify your ranking.'
+}
+
+]; // end CASES
+
+// ── STATE ─────────────────────────────────────────────────────────────────
+var activeTopic = 'All';
+var activeSection = null;
+var searchQ = '';
+var sortMode = 'year'; // 'year' or 'topic'
+var openCards = {};
+
+// ── DERIVED DATA — build topic and section lists from cases (Evergreen Principle) ──
+function buildTopicList() {
+  var all = ['All'];
+  var seen = {};
+  CASES.forEach(function(c) {
+    c.topics.forEach(function(t) { if (!seen[t]) { seen[t] = true; all.push(t); } });
+  });
+  return all;
+}
+
+function buildSectionList() {
+  var all = [];
+  var seen = {};
+  CASES.forEach(function(c) {
+    (c.ppc_sections || []).forEach(function(s) { if (!seen[s]) { seen[s] = 'ppc'; all.push({id:s,type:'ppc'}); seen[s]=true; } });
+    (c.crpc_sections || []).forEach(function(s) { if (!seen[s]) { seen[s] = 'crpc'; all.push({id:s,type:'crpc'}); seen[s]=true; } });
+  });
+  return all;
+}
+
+// ── TOPIC ICON MAP ─────────────────────────────────────────────────────────
+var TOPIC_ICONS = {
+  'All':'⚖️',
+  'Murder':'⚖️',
+  'Rape':'⚖️',
+  'Theft':'⚖️',
+  'Common Intention':'👥',
+  'Mob Violence':'👥',
+  'Blasphemy':'📖',
+  'General Exceptions':'⚡',
+  'Abetment':'💬',
+  'Criminal Conspiracy':'👥',
+  'Theories of Punishment':'⚙️',
+  'Elite Impunity':'💬',
+  'State Violence':'⚖️',
+  'Terrorism':'⚖️',
+  'Acid Attacks':'⚖️',
+  'Child Protection':'⚖️',
+  'Robbery':'⚔️'
+};
+
+// ── RENDER PILLS ──────────────────────────────────────────────────────────
+function renderPills() {
+  var topics = buildTopicList();
+  var sections = buildSectionList();
+  var tp = document.getElementById('topic-pills');
+  var sp = document.getElementById('sec-pills');
+  tp.innerHTML = '';
+  sp.innerHTML = '';
+
+  topics.forEach(function(t) {
+    var ico = TOPIC_ICONS[t] || '⚖️';
+    var el = document.createElement('div');
+    el.className = 'pill' + (t === activeTopic ? ' on' : '');
+    el.innerHTML = (t !== 'All' ? '<span class="pill-ico">' + ico + '</span>' : '') + t;
+    el.onclick = (function(topic) { return function() { setTopic(topic); }; })(t);
+    tp.appendChild(el);
+  });
+
+  sections.forEach(function(s) {
+    var el = document.createElement('div');
+    el.className = 'spill' + (s.type === 'crpc' ? ' crpc' : '') + (s.id === activeSection ? ' on' : '');
+    el.textContent = s.id;
+    el.onclick = (function(sec) { return function() { setSection(sec); }; })(s.id);
+    sp.appendChild(el);
+  });
+}
+
+// ── FILTER + SEARCH LOGIC ─────────────────────────────────────────────────
+function filterCases() {
+  var q = searchQ.toLowerCase().trim();
+  return CASES.filter(function(c) {
+    var topicMatch = (activeTopic === 'All') || c.topics.indexOf(activeTopic) >= 0;
+    var secMatch = !activeSection || (c.ppc_sections || []).indexOf(activeSection) >= 0 || (c.crpc_sections || []).indexOf(activeSection) >= 0;
+    var searchMatch = !q || [c.name, c.citation, c.commentary, c.year+'', (c.topics||[]).join(' '), (c.ppc_sections||[]).join(' '), (c.crpc_sections||[]).join(' ')].join(' ').toLowerCase().indexOf(q) >= 0;
+    return topicMatch && secMatch && searchMatch;
+  });
+}
+
+function sortCases(cases) {
+  if (sortMode === 'year') {
+    return cases.slice().sort(function(a, b) { return a.year - b.year; });
+  } else {
+    return cases.slice().sort(function(a, b) {
+      var ta = a.topics[0] || '';
+      var tb = b.topics[0] || '';
+      return ta < tb ? -1 : ta > tb ? 1 : a.year - b.year;
+    });
+  }
+}
+
+// ── RENDER CARDS ──────────────────────────────────────────────────────────
+function renderCards() {
+  var filtered = sortCases(filterCases());
+  var wrap = document.getElementById('cards-inner');
+  var empty = document.getElementById('empty');
+  var resTxt = document.getElementById('results-txt');
+  var totalTxt = document.getElementById('total-count');
+
+  totalTxt.textContent = CASES.length + ' cases';
+  wrap.innerHTML = '';
+
+  if (filtered.length === 0) {
+    empty.classList.add('vis');
+    resTxt.textContent = 'No cases found';
+    return;
+  }
+  empty.classList.remove('vis');
+
+  var showing = filtered.length;
+  resTxt.textContent = showing === CASES.length ? 'Showing all ' + CASES.length + ' cases' : 'Showing ' + showing + ' of ' + CASES.length + ' cases';
+
+  // Group by topic if sort=topic, else flat by year
+  if (sortMode === 'topic') {
+    var groups = {};
+    var groupOrder = [];
+    filtered.forEach(function(c) {
+      var g = c.topics[0] || 'Other';
+      if (!groups[g]) { groups[g] = []; groupOrder.push(g); }
+      groups[g].push(c);
+    });
+    groupOrder.forEach(function(g) {
+      var lbl = document.createElement('div');
+      lbl.className = 'div-lbl';
+      lbl.textContent = g;
+      wrap.appendChild(lbl);
+      groups[g].forEach(function(c) { wrap.appendChild(buildCard(c)); });
+    });
+  } else {
+    // Year sort — group by decade for readability
+    var decades = {};
+    var decOrder = [];
+    filtered.forEach(function(c) {
+      var d = c.year < 2000 ? (Math.floor(c.year/10)*10)+'s' : c.year < 2010 ? '2000s' : c.year < 2020 ? '2010s' : '2020s';
+      if (!decades[d]) { decades[d] = []; decOrder.push(d); }
+      decades[d].push(c);
+    });
+    decOrder.forEach(function(d) {
+      var lbl = document.createElement('div');
+      lbl.className = 'div-lbl';
+      lbl.textContent = d;
+      wrap.appendChild(lbl);
+      decades[d].forEach(function(c) { wrap.appendChild(buildCard(c)); });
+    });
+  }
+}
+
+function buildCard(c) {
+  var card = document.createElement('div');
+  card.className = 'ccard' + (openCards[c.id] ? ' open' : '');
+  card.id = 'card-' + c.id;
+
+  // Header
+  var hdr = document.createElement('div');
+  hdr.className = 'cc-hdr';
+  hdr.innerHTML =
+    '<div class="cc-ico">' + c.icon + '</div>' +
+    '<div class="cc-meta">' +
+      '<div class="cc-name">' + esc(c.name) + '</div>' +
+      '<div class="cc-cite">' + esc(c.citation) + '</div>' +
+    '</div>' +
+    '<div class="cc-chev">▾</div>';
+  hdr.onclick = (function(id) { return function() { toggleCard(id); }; })(c.id);
+  card.appendChild(hdr);
+
+  // Tags
+  var tags = document.createElement('div');
+  tags.className = 'cc-tags';
+  c.topics.forEach(function(t) {
+    var tag = document.createElement('span');
+    tag.className = 'tag tt';
+    tag.textContent = t;
+    tags.appendChild(tag);
+  });
+  (c.ppc_sections || []).forEach(function(s) {
+    var tag = document.createElement('span');
+    tag.className = 'tag tp';
+    tag.textContent = s;
+    tags.appendChild(tag);
+  });
+  (c.crpc_sections || []).forEach(function(s) {
+    var tag = document.createElement('span');
+    tag.className = 'tag tc';
+    tag.textContent = s;
+    tags.appendChild(tag);
+  });
+  card.appendChild(tags);
+
+  // Hint (collapsed)
+  var hint = document.createElement('div');
+  hint.className = 'cc-hint';
+  hint.textContent = c.sparring ? 'Tap to read commentary + sparring question' : 'Tap to read commentary';
+  card.appendChild(hint);
+
+  // Body (expanded)
+  var body = document.createElement('div');
+  body.className = 'cc-body';
+  var html = '<div class="cc-text">' + esc(c.commentary) + '</div>';
+  if (c.relevant && c.relevant.length) {
+    html += '<div class="rel-lbl">Relevant to</div>';
+    c.relevant.forEach(function(r) { html += '<div class="rel-item">· ' + esc(r) + '</div>'; });
+  }
+  if (c.crpc_note) {
+    html += '<div style="margin-top:10px;background:#0f2a1f;border:0.5px solid #1a4a35;border-left:2.5px solid #5dd4a0;border-radius:6px;padding:9px 11px"><div style="font-size:9px;font-weight:700;color:#5dd4a0;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px">CrPC Connection</div><div style="font-size:11px;color:#d0dce8;line-height:1.55">' + esc(c.crpc_note) + '</div></div>';
+  }
+  if (c.sparring) {
+    html += '<div class="spar-box"><div class="spar-lbl">⚔ Sparring Question</div><div class="spar-txt">' + esc(c.sparring) + '</div></div>';
+  }
+  body.innerHTML = html;
+  card.appendChild(body);
+
+  return card;
+}
+
+function esc(s) {
+  if (!s) return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── INTERACTIONS ──────────────────────────────────────────────────────────
+function toggleCard(id) {
+  openCards[id] = !openCards[id];
+  var card = document.getElementById('card-' + id);
+  if (card) {
+    card.classList.toggle('open', !!openCards[id]);
+  }
+}
+
+function setTopic(t) {
+  activeTopic = t;
+  activeSection = null;
+  renderPills();
+  renderCards();
+}
+
+function setSection(s) {
+  activeSection = (activeSection === s) ? null : s;
+  renderPills();
+  renderCards();
+}
+
+function onSearch(val) {
+  searchQ = val;
+  var clr = document.getElementById('clr');
+  if (clr) clr.classList.toggle('vis', val.length > 0);
+  renderCards();
+}
+
+function clearSearch() {
+  document.getElementById('si').value = '';
+  searchQ = '';
+  document.getElementById('clr').classList.remove('vis');
+  document.getElementById('si').focus();
+  renderCards();
+}
+
+function toggleSort() {
+  sortMode = sortMode === 'year' ? 'topic' : 'year';
+  document.getElementById('sort-btn').textContent = '↕ Sort: ' + (sortMode === 'year' ? 'Year' : 'Topic');
+  renderCards();
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+window.addEventListener('load', function() {
+  renderPills();
+  renderCards();
+});
+</script>
+</body>
+</html>
